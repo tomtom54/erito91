@@ -1,0 +1,42 @@
+version: '3.3'
+services:
+    db:
+        image: mysql:5.7
+        command: "--default-authentication-plugin=mysql_native_password"
+        container_name: erito91_mysql
+        volumes:
+            - .docker/data/db:/var/lib/mysql
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: rootErito91
+            MYSQL_DATABASE: erito91
+            MYSQL_USER: dbadmin
+            MYSQL_PASSWORD: dbadmin91
+
+    wordpress:
+        image: wordpress:latest
+        container_name: erito91_wordpress
+        ports:
+          - "8000:80"
+        restart: always
+        volumes:
+            - .:/var/www/html
+            - .docker/config/vhosts:/etc/apache2/sites-enabled
+        environment:
+            WORDPRESS_DB_HOST: db:3306
+            WORDPRESS_DB_USER: dbadmin
+            WORDPRESS_DB_PASSWORD: dbadmin91
+            WORDPRESS_DB_NAME: erito91
+        depends_on: 
+            - db
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: erito91_phpmyadmin
+        environment:
+          PMA_HOST: db
+          PMA_PORT: 3306
+        ports:
+            - 3080:80
+        links:
+            - db
